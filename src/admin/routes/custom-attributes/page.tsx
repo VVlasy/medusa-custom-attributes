@@ -46,6 +46,8 @@ import { useAdminAttributes } from "../../util/use-admin-attributes";
 import { UseFormReturn } from "react-hook-form";
 import { AxiosError } from "axios";
 
+import { createCategoryTree } from './util/categoryTree';
+
 type NewAttributeForm = {
   name: string;
   handle?: string;
@@ -185,16 +187,21 @@ const CustomAttributesPage = ({ notify }: RouteProps) => {
               </p>
             </div>
           ) : (
-            <div className="pl-8 pr-8 pt-2 pb-2 min-h-[350px]">
-              {attributes?.map((attribute) => (
-                <AttributeRow
-                  attribute={attribute}
-                  notify={notify}
-                  setEditModalOpen={setEditModalOpen}
-                  setCurrentAttribute={setCurrentAttribute}
-                />
-              ))}
-            </div>
+            <>
+              <div className="pl-8 pr-8 pt-2 pb-2 min-h-[350px]">
+                {attributes?.map((attribute) => (
+                  <AttributeRow
+                    attribute={attribute}
+                    notify={notify}
+                    setEditModalOpen={setEditModalOpen}
+                    setCurrentAttribute={setCurrentAttribute}
+                  />
+                ))}
+              </div>
+              <div className="pl-8 pr-8 pt-2 pb-2 min-h-[350px]">
+                <AttributesTree attributes={attributes}/>
+              </div>
+            </>
           )}
         </div>
       </DndProvider>
@@ -500,6 +507,43 @@ const AttributeRow = (props: AttributeRowProps) => {
         </Text>
       </div>
       <AttributeDropdown {...props} />
+    </div>
+  );
+};
+
+const AttributesTree = (props: { attributes: Attribute[] }) => {
+  const { attributes } = props;
+  const attributesTree = createCategoryTree(attributes);
+
+  return (
+    <div>
+      <TreeNode node={attributesTree}/>
+    </div>
+  );
+}
+
+const TreeNode = ({ node }) => {
+  return (
+    <div className="ml-4 mt-2">
+      <div className="flex items-center">
+        <div className="font-bold">{node.name}</div>
+      </div>
+      {node.attributes.length > 0 && (
+        <ul className="list-disc ml-5">
+          {node.attributes.map((attr) => (
+            <li key={attr.id} className="text-gray-700">
+              {attr.name}
+            </li>
+          ))}
+        </ul>
+      )}
+      {node.subcategories.length > 0 && (
+        <div className="ml-4 border-l border-gray-300">
+          {node.subcategories.map((subNode) => (
+            <TreeNode key={subNode.name} node={subNode} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
