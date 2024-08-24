@@ -18,4 +18,8 @@ export class AdminListAttributesParams {
   @IsOptional()
   @IsString({ each: true })
   categories?: string[]; // Categories handle
+
+  @IsOptional()
+  @IsString({ each: true })
+  handle?: string; // Attribute handle
 }

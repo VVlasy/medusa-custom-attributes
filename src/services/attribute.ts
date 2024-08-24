@@ -8,6 +8,7 @@ import {
   In,
   IsNull,
   Not,
+  Equal,
 } from "typeorm";
 import { MedusaError } from "medusa-core-utils";
 import { AdminPostAttributeReq } from "../api/attribute/create-attribute";
@@ -62,7 +63,7 @@ class AttributeService extends TransactionBaseService {
   }
 
   async list(
-    { categories }: AdminListAttributesParams,
+    { categories, handle }: AdminListAttributesParams,
     defaultConfig: Pick<
       FindManyOptions<Attribute>,
       "select" | "where" | "relations"
@@ -93,7 +94,7 @@ class AttributeService extends TransactionBaseService {
         {
           ...where,
           categories: {
-            handle: In(categories),
+            handle: Equal(categories),
           },
         },
         {
@@ -101,6 +102,15 @@ class AttributeService extends TransactionBaseService {
           categories: {
             id: IsNull(),
           },
+        },
+      ];
+    }
+
+    if (handle) {
+      config.where = [
+        {
+          ...where,
+            handle: handle,
         },
       ];
     }
